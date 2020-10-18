@@ -9,19 +9,27 @@ class Gossip
     @author = author    
   end
 
-  def save
-    File.open("./db/gossip.csv", 'a+') {|f| f.write("#{@author}, #{@content}\n")}
+ def save 
+    CSV.open("lib/db/gossip.csv", "a+") { |csv| csv << [@author, @content] }
+  
+end
+
+ def self.all
+    all_gossips = []
+    file = CSV.read("db/gossip.csv")
+    file.each do |line|
+      gossip_temp = Gossip.new(line[0], line[1])
+      all_gossips << gossip_temp
+    end
+    return all_gossips
   end
 
-  def self.all
-   all_gossips = []
-   f = File.open("./db/gossip.csv", "r")
-   f.each_line do |line|
-    temp_gossip = Gossip.new(line)
-    all_gossips << temp_gossip
-    all_gossips
-   end
+  def self.save_after_destroy(gossips)
+        CSV.open("db/gossip.csv", "w") do |csv|
+          gossips.each { |gossip| csv << [gossip.author, gossip.content] }
+        end
   end
+
 
 
 
